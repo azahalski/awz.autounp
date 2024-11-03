@@ -18,11 +18,11 @@
         this.node = options.node;
         this.ajaxTimer = (!!options.ajaxTimer ? options.ajaxTimer : false) || 100;
         this.debug = !!options.debug ? true : false;
+		this.findDom();
         var parent = this;
-        parent.findDom(parent.node);
         BX.addCustomEvent('onAjaxSuccess',function(sett, param){
             if(param.url.indexOf('/bitrix/tools/')>-1) return;
-            parent.findDom(parent.node);
+            parent.findDom();
         });
     };
     window.AwzAutoUnp.prototype = {
@@ -60,6 +60,7 @@
             }
         },
         findDom: function(node){
+            if(!node) node = this.node;
             document.querySelectorAll(node).forEach(function(item){
                 item.setAttribute('onkeyup','AwzAutoUnp_ob.find(this);');
             });
