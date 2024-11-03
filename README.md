@@ -51,6 +51,40 @@ if(Loader::includeModule('awz.autounp')){
 }
 ```
 
+### Динамическое обновление контента (мимо BX.ajax)
+
+** подстановка события onkeyup
+
+```js
+if(typeof(AwzAutoUnp_ob)!='undefined'){
+    AwzAutoUnp_ob.findDom();
+}
+```
+
+** пример изменения логики и обработки ошибок
+
+```js
+const controller_url = '/bitrix/services/main/ajax.php?action=awz%3Aautounp.api.mnsrb.find';
+BX.addCustomEvent('onAjaxSuccess',function(data, param){
+    let error = false;
+    try{
+        if(param.url === controller_url){
+            if(data.status != 'success') {
+                error = true
+            }else{
+                if(!data.data.mns) error = true
+            }
+        }
+    }catch (e) {
+        error = true;
+    }
+    if(error){
+        alert('Ошибка получения данных по УНП');
+    }
+});
+
+```
+
 <!-- dev-end -->
 
 
