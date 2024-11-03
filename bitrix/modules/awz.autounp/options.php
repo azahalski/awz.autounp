@@ -80,7 +80,6 @@ $tabControl->Begin();
                         <?=Loc::getMessage('AWZ_AUTOUNP_OPT_SHOW_DESC')?>.
                     </span>
                 </div>
-
             </td>
         </tr>
         <?

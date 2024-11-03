@@ -4,6 +4,7 @@ $MESS["AWZ_AUTOUNP_OPT_SECT1"] = "Настройки модуля";
 $MESS["AWZ_AUTOUNP_OPT_SECT2"] = "Права доступа";
 $MESS["AWZ_AUTOUNP_OPT_L_BTN_SAVE"] = "Сохранить настройки";
 $MESS["AWZ_AUTOUNP_OPT_SHOW_TITLE"] = "Включить автоподстановку по УНП";
+$MESS["AWZ_AUTOUNP_OPT_SHOW_DESC"] = "Модуль получает сведения по УНП из МНСРБ и подставляет в поля при оформлении заказа";
 $MESS["AWZ_AUTOUNP_OPT_FIELD_UNP_TITLE"] = "Селектор свойства с УНП";
 $MESS["AWZ_AUTOUNP_OPT_FIELD_MAME1_TITLE"] = "Селектор свойства с названием компании";
 $MESS["AWZ_AUTOUNP_OPT_FIELD_MAME2_TITLE"] = "Селектор свойства с коротким названием компании";

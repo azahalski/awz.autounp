@@ -63,7 +63,7 @@ class awz_autounp extends CModule
 
         $step = intval($step);
         if($step < 2) {
-            $APPLICATION->IncludeAdminFile(Loc::getMessage('AWZ_AGELIMIT_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/'. $this->MODULE_ID .'/install/unstep.php');
+            $APPLICATION->IncludeAdminFile(Loc::getMessage('AWZ_AUTOUNP_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/'. $this->MODULE_ID .'/install/unstep.php');
         }
         elseif($step == 2) {
             if($_REQUEST['save'] != 'Y' && !isset($_REQUEST['save'])) {
