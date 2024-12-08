@@ -14,7 +14,5 @@ class PermissionDictionary
 	public const MODULE_SETT_EDIT = "97";
 	public const MODULE_RIGHT_VIEW = "98";
 	public const MODULE_RIGHT_EDIT = "99";
-	public const GENS_PAGE = "2";
-	public const GENS_RIGHT = "3";
 	/*awz.gen end - !!!nodelete*/
 }

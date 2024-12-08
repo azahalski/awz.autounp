@@ -10,7 +10,6 @@ class ComponentConfig extends ConfigPermissions
 {
     /*awz.gen start - !!!nodelete*/
 	protected const SECTION_MODULE = "MODULE";
-	protected const SECTION_GENS = "GENS";
     /*awz.gen end - !!!nodelete*/
 
     public const COMPONENT_NAME = 'awz:autounp.config.permissions';
