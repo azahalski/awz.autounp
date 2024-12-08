@@ -46,26 +46,25 @@ class awz_autounp extends CModule
         $this->createAgents();
 
         ModuleManager::RegisterModule($this->MODULE_ID);
-        LocalRedirect('/bitrix/admin/settings.php?lang='.LANG.'&mid='.$this->MODULE_ID.'&mid_menu=1');
+
+        $filePath = dirname(__DIR__ . '/../../options.php');
+        if(file_exists($filePath)){
+            LocalRedirect('/bitrix/admin/settings.php?lang='.LANG.'&mid='.$this->MODULE_ID.'&mid_menu=1');
+        }
 
         return true;
     }
 
     function DoUninstall()
     {
-        $this->deleteAgents();
-        $this->UnInstallEvents();
-        $this->UnInstallFiles();
-        ModuleManager::UnRegisterModule($this->MODULE_ID);
-        return true;
-        /*
         global $APPLICATION, $step;
 
         $step = intval($step);
-        if($step < 2) {
+        if($step < 2) { //выводим предупреждение
             $APPLICATION->IncludeAdminFile(Loc::getMessage('AWZ_AUTOUNP_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/'. $this->MODULE_ID .'/install/unstep.php');
         }
         elseif($step == 2) {
+            //проверяем условие
             if($_REQUEST['save'] != 'Y' && !isset($_REQUEST['save'])) {
                 $this->UnInstallDB();
             }
@@ -76,27 +75,52 @@ class awz_autounp extends CModule
             ModuleManager::UnRegisterModule($this->MODULE_ID);
 
             return true;
-        }*/
+        }
     }
 
     function InstallDB()
     {
-        return true;
+        global $DB, $DBType, $APPLICATION;
+        $connection = \Bitrix\Main\Application::getConnection();
+        $this->errors = false;
+        if(!$this->errors && !$DB->TableExists(implode('_', explode('.',$this->MODULE_ID)).'_permission')) {
+            $this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/" . $this->MODULE_ID . "/install/db/".$connection->getType()."/access.sql");
+        }
+        if (!$this->errors) {
+            return true;
+        } else {
+            $APPLICATION->ThrowException(implode("", $this->errors));
+            return $this->errors;
+        }
     }
 
     function UnInstallDB()
     {
-        return true;
+        global $DB, $DBType, $APPLICATION;
+        $connection = \Bitrix\Main\Application::getConnection();
+        $this->errors = false;
+        if (!$this->errors) {
+            $this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/" . $this->MODULE_ID . "/install/db/" . $connection->getType() . "/unaccess.sql");
+        }
+        if (!$this->errors) {
+            return true;
+        }
+        else {
+            $APPLICATION->ThrowException(implode("", $this->errors));
+            return $this->errors;
+        }
     }
 
     function InstallEvents()
     {
         $eventManager = EventManager::getInstance();
-        $eventManager->registerEventHandlerCompatible("main", "OnEndBufferContent",
-            $this->MODULE_ID, '\Awz\AutoUnp\HandlersBx', 'OnEndBufferContent'
+        $eventManager->registerEventHandlerCompatible(
+            'main', 'OnAfterUserUpdate',
+            $this->MODULE_ID, '\\Awz\\Autounp\\Access\\Handlers', 'OnAfterUserUpdate'
         );
-        $eventManager->registerEventHandlerCompatible("main", "OnPageStart",
-            $this->MODULE_ID, '\Awz\AutoUnp\HandlersBx', 'OnPageStart'
+        $eventManager->registerEventHandlerCompatible(
+            'main', 'OnAfterUserAdd',
+            $this->MODULE_ID, '\\Awz\\Autounp\\Access\\Handlers', 'OnAfterUserUpdate'
         );
         return true;
     }
@@ -105,12 +129,12 @@ class awz_autounp extends CModule
     {
         $eventManager = EventManager::getInstance();
         $eventManager->unRegisterEventHandler(
-            'main', 'OnEndBufferContent',
-            $this->MODULE_ID, '\Awz\AutoUnp\HandlersBx', 'OnEndBufferContent'
+            'sale', 'OnAfterUserUpdate',
+            $this->MODULE_ID, '\\Awz\\Autounp\\Access\\Handlers', 'OnAfterUserUpdate'
         );
         $eventManager->unRegisterEventHandler(
-            'main', 'OnPageStart',
-            $this->MODULE_ID, '\Awz\AutoUnp\HandlersBx', 'OnPageStart'
+            'sale', 'OnAfterUserAdd',
+            $this->MODULE_ID, '\\Awz\\Autounp\\Access\\Handlers', 'OnAfterUserUpdate'
         );
         return true;
     }
@@ -119,6 +143,14 @@ class awz_autounp extends CModule
     {
         \CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/js/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/".$this->MODULE_ID, true);
         \CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/css/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/css/".$this->MODULE_ID, true);
+        \CopyDirFiles($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/admin/",
+            $_SERVER['DOCUMENT_ROOT']."/bitrix/admin/",
+            true
+        );
+        \CopyDirFiles($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/components/autounp.config.permissions/",
+            $_SERVER['DOCUMENT_ROOT']."/bitrix/components/awz/autounp.config.permissions",
+            true, true
+        );
         return true;
     }
 
@@ -126,6 +158,11 @@ class awz_autounp extends CModule
     {
         \DeleteDirFilesEx("/bitrix/js/".$this->MODULE_ID);
         \DeleteDirFilesEx("/bitrix/css/".$this->MODULE_ID);
+        DeleteDirFilesEx("/bitrix/components/awz/autounp.config.permissions");
+        DeleteDirFiles(
+            $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/admin",
+            $_SERVER['DOCUMENT_ROOT']."/bitrix/admin"
+        );
         return true;
     }
 
