@@ -1,6 +1,6 @@
 # AWZ: Заполнение данных по УНП (awz.autounp)
 
-### [Установка модуля](https://github.com/zahalski/awz.autounp/tree/main/docs/install.md)
+### [Установка модуля](https://github.com/azahalski/awz.autounp/tree/main/docs/install.md)
 
 <!-- desc-start -->
 
@@ -85,12 +85,45 @@ BX.addCustomEvent('onAjaxSuccess',function(data, param){
 
 ```
 
+** пример подключения вручную (без обработчика)
+
+```php
+
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Security;
+use Bitrix\Main\Loader;
+use Awz\AutoUnp\Helper;
+if(Loader::includeModule('awz.autounp')){
+\CJsCore::init(['awz_autounp']);
+$context = Application::getInstance()->getContext();
+            $request = $context->getRequest();
+            $uriString = $request->getRequestUri();
+
+            $signer = new Security\Sign\Signer();
+
+            $options = [
+                'node'=>Option::get('awz.autounp', 'FIELD_UNP', '', $context->getSite())
+            ];
+            $options['signedParameters'] = $signer->sign(base64_encode(serialize(array(
+                'uriString'=>$uriString,
+                'site_id'=>$context->getSite(),
+                's_id'=>\bitrix_sessid(),
+                'options_hash'=>Helper::getOptionsHash($context->getSite())
+            ))));
+
+            $html = '<script>var AwzAutoUnp_ob = new window.AwzAutoUnp('.\CUtil::PHPToJSObject($options).');</script>';
+echo $html;
+}
+
+```
+
 <!-- dev-end -->
 
 
 <!-- cl-start -->
 ## История версий
 
-https://github.com/zahalski/awz.autounp/blob/master/CHANGELOG.md
+https://github.com/azahalski/awz.autounp/blob/master/CHANGELOG.md
 
 <!-- cl-end -->
