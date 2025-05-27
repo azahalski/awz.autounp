@@ -56,6 +56,8 @@ class Helper {
                 $e->getMessage(),
                 200
             ));
+            $obCache = \Bitrix\Main\Data\Cache::createInstance();
+            $obCache->clean($unp, "/awz/".self::MODULE_ID);
         }
         return $reqResult;
     }
