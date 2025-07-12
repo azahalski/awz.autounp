@@ -13,6 +13,7 @@ Loc::loadMessages(__FILE__);
 class Helper {
 
     const CACHE_TIME = 31600000;
+    const CACHE_ERR_TIME = 14400;
     const MODULE_ID = 'awz.autounp';
     const API_URL = 'http://grp.nalog.gov.by/api/grp-public/data';
 
@@ -49,7 +50,17 @@ class Helper {
         }
 
         try{
-            $reqResult->setData(Json::decode($res));
+            $jsn = Json::decode($res);
+            $reqResult->setData($jsn);
+
+            if(isset($jsn['status'], $jsn['timestamp'])
+                && ($jsn['status']==400)
+                && (strtotime($jsn['timestamp'])<(time()-self::CACHE_ERR_TIME))
+            ){
+                $obCache = \Bitrix\Main\Data\Cache::createInstance();
+                $obCache->clean($unp, "/awz/".self::MODULE_ID);
+            }
+
         }catch (\Exception $e){
             $reqResult->setData(['content'=>$res]);
             $reqResult->addError(new Error(
