@@ -174,7 +174,7 @@ class awz_autounp extends CModule
     }
 
     function deleteAgents() {
-        CAgent::RemoveModuleAgents("sale");
+        CAgent::RemoveModuleAgents($this->MODULE_ID);
         return true;
     }
 
